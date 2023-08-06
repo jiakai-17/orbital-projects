@@ -1,5 +1,4 @@
 <script lang="ts">
-	import logo from '$lib/images/orbital_logo.png';
 	import NavTabs from './NavTabs.svelte';
 
 	let urls = [
@@ -13,7 +12,7 @@
 	<nav class="flex min-h-fit w-full justify-between">
 		<div class="aspect-square p-3 md:p-1">
 			<a href="/">
-				<img alt="Orbital" class="rounded-lg" src={logo} />
+				<img alt="Orbital" class="rounded-lg" src={'/orbital_logo.png'} />
 			</a>
 		</div>
 		<ul class="flex flex-row items-center justify-center gap-3 sm:gap-6 md:gap-12">

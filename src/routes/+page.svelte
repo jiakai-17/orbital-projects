@@ -7,7 +7,7 @@
 	<h1 class="mb-10 mt-12 flex w-full justify-center text-4xl font-bold">About Orbital</h1>
 
 	<div class="flex justify-center">
-		<img alt="Orbital" class="h-60 w-auto sm:h-72 md:h-96" src="/src/lib/images/orbital.png" />
+		<img alt="Orbital" class="h-60 w-auto sm:h-72 md:h-96" src="/orbital.png" />
 	</div>
 
 	<div class="my-12 flex justify-center">
