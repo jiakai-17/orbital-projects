@@ -32,7 +32,7 @@
 	let lastUpdated: string;
 
 	let searchQuery = '';
-	export let filteredProjs: project[];
+	let filteredProjs: project[];
 
 	async function fetchData() {
 		try {
@@ -50,7 +50,6 @@
 	}
 
 	const handleSearch = (s: string) => {
-		console.log('handling search with query: ' + s);
 		if (!projs) {
 			// handle if projs is not loaded yet
 			return;
@@ -84,6 +83,7 @@
 			selectedFilters.delete(event.target.value);
 		}
 		selectedFilters = selectedFilters;
+		handleSearch(searchQuery);
 	};
 
 	const onSelectAllFilters = (event) => {
@@ -93,6 +93,7 @@
 			selectedFilters = new Set();
 		}
 		selectedFilters = selectedFilters;
+		handleSearch(searchQuery);
 	};
 
 	const filterByAchievementLevel = (p: project) => {
