@@ -10,7 +10,7 @@
 
 <header class="flex h-16 w-full border-b-[1px] border-b-gray-400">
 	<nav class="flex min-h-fit w-full justify-between">
-		<div class="aspect-square p-3 md:p-1">
+		<div class="aspect-square h-16 w-16 p-3 md:p-1">
 			<a href="/">
 				<img alt="Orbital" class="rounded-lg" src={'/orbital_logo.png'} />
 			</a>
