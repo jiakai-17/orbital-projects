@@ -58,7 +58,7 @@
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<img alt="GitHub Repo" class="aspect-square h-8 w-8" src={'/github.svg'} />
+					<img alt="GitHub Repo" class="aspect-auto h-8 w-auto" src={'/github.svg'} />
 				</a>
 			</div>
 		{/if}
