@@ -39,9 +39,11 @@
 			const response = await fetch(`${api}/get/project_data.json`);
 			const jsonData = (await response.json()) as scrapedDataJSON;
 			lastUpdated = jsonData.updated;
-			projs = jsonData.data;
+			projs = jsonData.data
+				.filter((p: project) => p.year === year)
+				.sort((a: project, b: project) => b.teamId - a.teamId);
 
-			filteredProjs = projs.filter((p) => p.year === year).sort((a, b) => b.teamId - a.teamId);
+			filteredProjs = projs;
 		} catch (error) {
 			console.error('Error fetching data:', error);
 		} finally {
@@ -54,23 +56,20 @@
 			// handle if projs is not loaded yet
 			return;
 		}
-		filteredProjs = projs
-			.filter(filterByAchievementLevel)
-			.filter((p: project) => {
-				if (p.year !== year) {
-					return false;
-				}
-				if (s === '') {
-					return true;
-				}
-				const keywords = s.toString().split(' ');
-				const values = [p.teamName, p.teamMembers.join(' '), p.advisor, p.teamId, p.year]
-					.join(' ')
-					.toLowerCase();
+		filteredProjs = projs.filter((p: project) => {
+			if (!filterByAchievementLevel(p)) {
+				return false;
+			}
+			if (s === '') {
+				return true;
+			}
+			const keywords = s.toString().split(' ');
+			const values = [p.teamName, p.teamMembers.join(' '), p.advisor, p.teamId]
+				.join(' ')
+				.toLowerCase();
 
-				return keywords.every((k: string) => values.includes(k.toLowerCase()));
-			})
-			.sort((a: project, b: project) => b.teamId - a.teamId);
+			return keywords.every((k: string) => values.includes(k.toLowerCase()));
+		});
 	};
 
 	const achievementFilters = ['vostok', 'gemini', 'apollo', 'artemis'];
@@ -156,7 +155,7 @@
 	<h3 class="my-8 flex w-full justify-center text-base">Loading...</h3>
 {:else}
 	<section class="mb-20">
-		<h1 class="my-12 flex w-full justify-center text-4xl font-bold">
+		<h1 class="my-12 flex w-full justify-center text-3xl font-bold md:text-4xl">
 			{year} Projects ({filteredProjs.length})
 		</h1>
 		<h3 class="my-8 flex w-full justify-center text-base">
@@ -241,7 +240,7 @@
 						</div>
 						<div class="mx-2 my-2 h-[200px]">
 							{#if isValidUrl(getImageLink(fp.posterImg))}
-								<a href={getImageLink(fp.posterImg)} target="_blank">
+								<a href={getImageLink(fp.posterImg)} target="_blank" rel="noopener noreferrer">
 									<img
 										loading="lazy"
 										src={getImageLink(fp.thumbnailImg)}
@@ -268,7 +267,7 @@
 						</div>
 						<div class="my-4 flex flex-row justify-center gap-3 text-sm">
 							{#if isValidUrl(getImageLink(fp.posterImg))}
-								<a href={getImageLink(fp.posterImg)} target="_blank">
+								<a href={getImageLink(fp.posterImg)} target="_blank" rel="noopener noreferrer">
 									<button class="rounded-md bg-blue-500 px-3 py-1 text-white">View Poster</button>
 								</a>
 							{:else}
@@ -279,7 +278,7 @@
 								</button>
 							{/if}
 							{#if isValidUrl(fp.videoUrl)}
-								<a href={fp.videoUrl} target="_blank">
+								<a href={fp.videoUrl} target="_blank" rel="noopener noreferrer">
 									<button class="rounded-md bg-red-500 px-3 py-1 text-white">Watch Video</button>
 								</a>
 							{:else}
@@ -293,7 +292,7 @@
 
 						<div class="flex flex-row justify-center gap-3 text-sm">
 							{#if isValidUrl(fp.submissionPosterUrl)}
-								<a href={fp.submissionPosterUrl} target="_blank">
+								<a href={fp.submissionPosterUrl} target="_blank" rel="noopener noreferrer">
 									<button class="rounded-md bg-indigo-600 px-3 py-1 text-white">MS Poster</button>
 								</a>
 							{:else}
@@ -304,7 +303,7 @@
 								</button>
 							{/if}
 							{#if isValidUrl(fp.submissionVideoUrl)}
-								<a href={fp.submissionVideoUrl} target="_blank">
+								<a href={fp.submissionVideoUrl} target="_blank" rel="noopener noreferrer">
 									<button class="rounded-md bg-indigo-600 px-3 py-1 text-white">MS Video</button>
 								</a>
 							{:else}
