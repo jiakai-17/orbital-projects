@@ -20,6 +20,8 @@
 		submissionVideoUrl: string;
 		posterImg: string;
 		thumbnailImg: string;
+		svelteKey: string;
+		searchText: string;
 	};
 
 	type scrapedDataJSON = {
@@ -34,14 +36,30 @@
 	let searchQuery = '';
 	let filteredProjs: project[];
 
+	function debounce<T extends (...args: any[]) => any>(func: T, delay: number) {
+		let timer: any;
+		return (...args: Parameters<T>) => {
+			clearTimeout(timer);
+			timer = setTimeout(() => {
+				func(...args);
+			}, delay);
+		};
+	}
+
 	async function fetchData() {
 		try {
-			const response = await fetch(`${api}/get/project_data.json`);
+			const response = await fetch(`${api}/get/project_data_${year}.json`);
 			const jsonData = (await response.json()) as scrapedDataJSON;
 			lastUpdated = jsonData.updated;
 			projs = jsonData.data
-				.filter((p: project) => p.year === year)
-				.sort((a: project, b: project) => b.teamId - a.teamId);
+				// make search text in project
+				.map((p: project) => {
+					p.searchText = [p.teamName, p.teamMembers.join(' '), p.advisor, p.teamId]
+						.join(' ')
+						.toLowerCase();
+					p.svelteKey = p.year + '_' + p.teamId;
+					return p;
+				});
 
 			filteredProjs = projs;
 		} catch (error) {
@@ -51,7 +69,7 @@
 		}
 	}
 
-	const handleSearch = (s: string) => {
+	const handleSearch = debounce((s: string) => {
 		if (!projs) {
 			// handle if projs is not loaded yet
 			return;
@@ -63,19 +81,16 @@
 			if (s === '') {
 				return true;
 			}
-			const keywords = s.toString().split(' ');
-			const values = [p.teamName, p.teamMembers.join(' '), p.advisor, p.teamId]
-				.join(' ')
-				.toLowerCase();
+			const keywords = s.split(' ');
 
-			return keywords.every((k: string) => values.includes(k.toLowerCase()));
+			return keywords.every((k: string) => p.searchText.includes(k.toLowerCase()));
 		});
-	};
+	}, 250);
 
 	const achievementFilters = ['vostok', 'gemini', 'apollo', 'artemis'];
 	let selectedFilters = new Set(achievementFilters);
 
-	const onCheckFilter = (event) => {
+	const onCheckFilter = (event: any) => {
 		if (event.target.checked) {
 			selectedFilters.add(event.target.value);
 		} else {
@@ -85,7 +100,7 @@
 		handleSearch(searchQuery);
 	};
 
-	const onSelectAllFilters = (event) => {
+	const onSelectAllFilters = (event: any) => {
 		if (event.target.checked) {
 			selectedFilters = new Set(achievementFilters);
 		} else {
@@ -122,13 +137,20 @@
 		return '';
 	};
 
-	const achievementsText = {
-		vostok: 'Vostok',
-		gemini: 'Project Gemini',
-		apollo: 'Apollo 11',
-		artemis: 'Artemis'
+	const getAchievementsText = (achievement: string) => {
+		switch (achievement) {
+			case 'vostok':
+				return 'Vostok';
+			case 'gemini':
+				return 'Project Gemini';
+			case 'apollo':
+				return 'Apollo 11';
+			case 'artemis':
+				return 'Artemis';
+			default:
+				return '';
+		}
 	};
-
 	const isValidUrl = (url: string) => {
 		try {
 			new URL(url);
@@ -226,7 +248,7 @@
 
 		<div class="mt-16 flex w-full justify-center px-8">
 			<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-				{#each filteredProjs as fp}
+				{#each filteredProjs as fp (fp.svelteKey)}
 					<div
 						class="h-[575px] w-[300px] overflow-hidden rounded-md border-2 border-gray-300 px-2 py-2 shadow-md"
 					>
@@ -235,7 +257,7 @@
 						</div>
 						<div class="my-2 flex justify-center text-xs font-bold capitalize">
 							<div class={makeAchievementBadgeClass(fp.achievement)}>
-								{achievementsText[fp.achievement]}
+								{getAchievementsText(fp.achievement)}
 							</div>
 						</div>
 						<div class="mx-2 my-2 h-[200px]">
